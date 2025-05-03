@@ -1,6 +1,6 @@
 # Laravel Configurable Prometheus
 
-[![Tests](https://github.com/aduzenko/laravel-configurable-prometheus/actions/workflows/run-tests.yml/badge.svg)](https://github.com/aduzenko/laravel-configurable-prometheus/actions)
+[![Run Tests](https://github.com/anatolyduzenko/laravel-configurable-prometheus/actions/workflows/run-tests.yml/badge.svg)](https://github.com/anatolyduzenko/laravel-configurable-prometheus/actions/workflows/run-tests.yml)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/aduzenko/laravel-configurable-prometheus.svg?style=flat-square)](https://packagist.org/packages/aduzenko/laravel-configurable-prometheus)
 [![License](https://img.shields.io/github/license/aduzenko/laravel-configurable-prometheus.svg?style=flat-square)](LICENSE)
 
