@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Services;
 
-use Tests\TestCase;
 use Mockery;
 use Prometheus\CollectorRegistry;
 use Prometheus\Counter;
@@ -11,20 +10,28 @@ use AnatolyDuzenko\ConfigurablePrometheus\Services\MetricManager;
 use AnatolyDuzenko\ConfigurablePrometheus\Enums\MetricType;
 use AnatolyDuzenko\ConfigurablePrometheus\DTO\MetricDefinition;
 use AnatolyDuzenko\ConfigurablePrometheus\Contracts\MetricGroup;
+use Tests\BaseTestCase;
 
 /**
  * Class MetricManagerTest
  *
  * Tests the MetricManager logic for registering and interacting with metrics.
  */
-class MetricManagerTest extends TestCase
+class MetricManagerTest extends BaseTestCase
 {
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+    }
+
     /**
      * Test that MetricManager correctly registers metrics from a MetricGroup.
      */
     public function test_it_registers_metrics()
     {
         $definition = new MetricDefinition(
+            namespace: 'tests',
             name: 'test_counter',
             helpText: 'A test counter',
             type: MetricType::Counter,
@@ -36,7 +43,7 @@ class MetricManagerTest extends TestCase
 
         $registry = Mockery::mock(CollectorRegistry::class);
         $registry->shouldReceive('getOrRegisterCounter')
-            ->with('', 'test_counter', 'A test counter', ['env'])
+            ->with('tests', 'test_counter', 'A test counter', ['env'])
             ->once();
 
         $manager = new MetricManager($registry);
@@ -58,16 +65,18 @@ class MetricManagerTest extends TestCase
 
         $registry = Mockery::mock(CollectorRegistry::class);
         $registry->shouldReceive('getCounter')
-            ->with('', 'metric_name')
+            ->with('tests', 'counter_name')
             ->andReturn($counter);
-
         $registry->shouldReceive('getGauge')
-            ->with('', 'metric_name')
+            ->with('tests', 'counter_name')
+            ->andReturn($gauge);
+        $registry->shouldReceive('getGauge')
+            ->with('tests', 'gauge_name')
             ->andReturn($gauge);
 
         $manager = new MetricManager($registry);
-        $manager->inc('metric_name', ['app']);
-        $manager->set('metric_name', 5, ['app']);
+        $manager->inc('tests', 'counter_name',['app']);
+        $manager->set('tests', 'gauge_name', 5, ['app']);
 
         $this->assertInstanceOf(MetricManager::class, $manager);
     }

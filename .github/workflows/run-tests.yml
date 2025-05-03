@@ -36,10 +36,5 @@ jobs:
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
 
-    - name: Prepare Laravel application
-      run: |
-        cp .env.example .env || true
-        php artisan config:clear || true
-
     - name: Run tests
       run: vendor/bin/phpunit

@@ -2,23 +2,31 @@
 
 namespace Tests\Feature\Middleware;
 
-use Illuminate\Support\Facades\Route;
-use Tests\TestCase;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+use AnatolyDuzenko\ConfigurablePrometheus\Http\Middleware\AuthenticatePrometheus;
+use Tests\BaseTestCase;
 
 /**
  * Class AuthenticatePrometheusTest
  *
  * Tests the authentication middleware that protects the metrics endpoint.
  */
-class AuthenticatePrometheusTest extends TestCase
+class AuthenticatePrometheusTest extends BaseTestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
+    }
+    protected function createRequestWithAuth($user = null, $pass = null): Request
+    {
+        $server = [];
+        if ($user !== null && $pass !== null) {
+            $server['PHP_AUTH_USER'] = $user;
+            $server['PHP_AUTH_PW'] = $pass;
+        }
 
-        Route::middleware('prometheus.auth')->get('/test-metrics', function () {
-            return 'OK';
-        });
+        return Request::create('/test-metrics', 'GET', [], [], [], $server);
     }
 
     /**
@@ -26,9 +34,13 @@ class AuthenticatePrometheusTest extends TestCase
      */
     public function test_denies_request_without_credentials()
     {
-        $response = $this->get('/test-metrics');
-        $response->assertStatus(401);
-        $response->assertHeader('WWW-Authenticate');
+        $middleware = new AuthenticatePrometheus();
+        $request = $this->createRequestWithAuth();
+
+        $response = $middleware->handle($request, fn () => new Response('OK'));
+
+        $this->assertEquals(401, $response->getStatusCode());
+        $this->assertTrue($response->headers->has('WWW-Authenticate'));
     }
 
     /**
@@ -36,16 +48,13 @@ class AuthenticatePrometheusTest extends TestCase
      */
     public function test_allows_request_with_valid_credentials()
     {
-        config()->set('prometheus.auth.user', 'testuser');
-        config()->set('prometheus.auth.password', 'testpass');
+        $middleware = new AuthenticatePrometheus();
+        $request = $this->createRequestWithAuth('admin', 'secret');
 
-        $response = $this->get('/test-metrics', [
-            'PHP_AUTH_USER' => 'testuser',
-            'PHP_AUTH_PW' => 'testpass',
-        ]);
+        $response = $middleware->handle($request, fn () => new Response('OK'));
 
-        $response->assertStatus(200);
-        $response->assertSee('OK');
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('OK', $response->getContent());
     }
 
     /**
@@ -53,14 +62,11 @@ class AuthenticatePrometheusTest extends TestCase
      */
     public function test_denies_request_with_wrong_credentials()
     {
-        config()->set('prometheus.auth.user', 'testuser');
-        config()->set('prometheus.auth.password', 'testpass');
+        $middleware = new AuthenticatePrometheus();
+        $request = $this->createRequestWithAuth('wrong', 'bad');
 
-        $response = $this->get('/test-metrics', [
-            'PHP_AUTH_USER' => 'wrong',
-            'PHP_AUTH_PW' => 'bad',
-        ]);
+        $response = $middleware->handle($request, fn () => new Response('OK'));
 
-        $response->assertStatus(401);
+        $this->assertEquals(401, $response->getStatusCode());
     }
 }
