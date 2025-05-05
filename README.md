@@ -109,8 +109,8 @@ Then reference your group in `config/prometheus.php`:
 public function __construct(protected MetricManager $metrics)
     {}
 // then
-$this->metrics->inc('user_logins_total', ['web']);
-$this->metrics->set('active_users', 42, ['web']);
+$this->metrics->inc('users', 'user_logins_total', ['web']);
+$this->metrics->set('users', 'active_users', 42, ['web']);
 $this->metrics->observe('api', 'response_time_seconds', 0.32, ['/api/v1']);
 ```
 
@@ -121,8 +121,8 @@ $this->metrics->observe('api', 'response_time_seconds', 0.32, ['/api/v1']);
 public function index(Request $request, MetricManager $metrics)
 {
     // ....
-    $metrics->inc('user_logins_total', ['web']);
-    $metrics->set('active_users', 42, ['web']);
+    $metrics->inc('users', 'user_logins_total', ['web']);
+    $metrics->set('users', 'active_users', 42, ['web']);
     $metrics->observe('api', 'response_time_seconds', 0.32, ['/api/v1']);
 }
 ```
