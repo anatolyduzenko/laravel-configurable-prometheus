@@ -1,11 +1,12 @@
-<?php 
+<?php
 
 namespace AnatolyDuzenko\ConfigurablePrometheus\Providers;
 
 use AnatolyDuzenko\ConfigurablePrometheus\Contracts\MetricGroup;
+use AnatolyDuzenko\ConfigurablePrometheus\Contracts\MetricManagerInterface;
 use AnatolyDuzenko\ConfigurablePrometheus\Services\MetricManager;
-use Illuminate\Support\ServiceProvider;
 use AnatolyDuzenko\ConfigurablePrometheus\Support\RedisAdapterFactory;
+use Illuminate\Support\ServiceProvider;
 use Prometheus\CollectorRegistry;
 
 /**
@@ -23,14 +24,15 @@ class MetricsServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../config/prometheus.php', 'prometheus');
+        $this->mergeConfigFrom(__DIR__.'/../config/prometheus.php', 'prometheus');
 
         $this->app->singleton(CollectorRegistry::class, function () {
             $adapter = RedisAdapterFactory::make();
+
             return new CollectorRegistry($adapter);
         });
 
-        $this->app->singleton(MetricManager::class, fn ($app) => new MetricManager($app->make(CollectorRegistry::class)));
+        $this->app->singleton(MetricManagerInterface::class, fn ($app) => new MetricManager($app->make(CollectorRegistry::class)));
     }
 
     /**
@@ -46,21 +48,50 @@ class MetricsServiceProvider extends ServiceProvider
 
         $this->app['router']->aliasMiddleware('prometheus.auth', \AnatolyDuzenko\ConfigurablePrometheus\Http\Middleware\AuthenticatePrometheus::class);
 
-        $this->loadRoutesFrom(__DIR__ . '/../Http/routes.php');
+        $this->loadRoutesFrom(__DIR__.'/../Http/routes.php');
 
+        if (config('prometheus.enabled', true)) {
+            $this->registerMetrics();
+        } else {
+            $this->bindFakeMetricManager();
+        }
+    }
+
+    /**
+     * Register Mertics in application
+     * @return void
+     */
+    private function registerMetrics(): void {
         $this->app->afterResolving(MetricManager::class, function (MetricManager $metrics) {
-            
+
             $groupClasses = config('prometheus.groups', []);
             $metricGroups = collect($groupClasses)
-                ->map(fn($class) => app($class))
-                ->filter(fn($instance) => $instance instanceof MetricGroup)
+                ->map(fn ($class) => app($class))
+                ->filter(fn ($instance) => $instance instanceof MetricGroup)
                 ->all();
-            
+
             $metrics->register($metricGroups);
         });
-        
+
         if ($this->app->runningInConsole()) {
             $this->app->make(MetricManager::class);
         }
+    }
+
+    /**
+     * Bind fake dummy for tests
+     * @return void
+     */
+    private function bindFakeMetricManager(): void {
+        $this->app->singleton(MetricManagerInterface::class, function () {
+            return new class implements MetricManagerInterface {
+                public function register(array $metricGroups): void {}
+                public function set(string $namespace, string $name, float|int $value, array $labels = []): void {}
+                public function dec(string $namespace, string $name, array $labelValues = []): void {}
+                public function inc(string $namespace, string $name, array $labels = []): void {}
+                public function observe(string $namespace, string $name, float $value, array $labelValues = []): void {}
+                public function observeSummary(string $namespace, string $name, float $value, array $labelValues = []): void {}
+            };
+        });
     }
 }

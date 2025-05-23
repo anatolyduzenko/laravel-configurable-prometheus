@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace AnatolyDuzenko\ConfigurablePrometheus\Support;
 
@@ -14,8 +14,6 @@ class RedisAdapterFactory
 {
     /**
      * Create a Redis adapter for Prometheus storage.
-     *
-     * @return \Prometheus\Storage\Redis
      */
     public static function make(): Redis
     {

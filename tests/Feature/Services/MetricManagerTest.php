@@ -2,14 +2,14 @@
 
 namespace Tests\Feature\Services;
 
+use AnatolyDuzenko\ConfigurablePrometheus\Contracts\MetricGroup;
+use AnatolyDuzenko\ConfigurablePrometheus\DTO\MetricDefinition;
+use AnatolyDuzenko\ConfigurablePrometheus\Enums\MetricType;
+use AnatolyDuzenko\ConfigurablePrometheus\Services\MetricManager;
 use Mockery;
 use Prometheus\CollectorRegistry;
 use Prometheus\Counter;
 use Prometheus\Gauge;
-use AnatolyDuzenko\ConfigurablePrometheus\Services\MetricManager;
-use AnatolyDuzenko\ConfigurablePrometheus\Enums\MetricType;
-use AnatolyDuzenko\ConfigurablePrometheus\DTO\MetricDefinition;
-use AnatolyDuzenko\ConfigurablePrometheus\Contracts\MetricGroup;
 use Tests\BaseTestCase;
 
 /**
@@ -19,7 +19,6 @@ use Tests\BaseTestCase;
  */
 class MetricManagerTest extends BaseTestCase
 {
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -75,7 +74,7 @@ class MetricManagerTest extends BaseTestCase
             ->andReturn($gauge);
 
         $manager = new MetricManager($registry);
-        $manager->inc('tests', 'counter_name',['app']);
+        $manager->inc('tests', 'counter_name', ['app']);
         $manager->set('tests', 'gauge_name', 5, ['app']);
 
         $this->assertInstanceOf(MetricManager::class, $manager);

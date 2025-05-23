@@ -2,9 +2,9 @@
 
 namespace AnatolyDuzenko\ConfigurablePrometheus\Metrics\Groups;
 
-use AnatolyDuzenko\ConfigurablePrometheus\Enums\MetricType;
-use AnatolyDuzenko\ConfigurablePrometheus\DTO\MetricDefinition;
 use AnatolyDuzenko\ConfigurablePrometheus\Contracts\MetricGroup;
+use AnatolyDuzenko\ConfigurablePrometheus\DTO\MetricDefinition;
+use AnatolyDuzenko\ConfigurablePrometheus\Enums\MetricType;
 
 /**
  * A sample metric group that defines user-related metrics.
@@ -32,7 +32,7 @@ class UserMetrics implements MetricGroup
                 helpText: 'Current active user count.',
                 type: MetricType::Gauge,
                 labelNames: ['app']
-            )
+            ),
         ];
     }
 }

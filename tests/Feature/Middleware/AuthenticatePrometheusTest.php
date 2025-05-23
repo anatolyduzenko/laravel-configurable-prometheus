@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Middleware;
 
+use AnatolyDuzenko\ConfigurablePrometheus\Http\Middleware\AuthenticatePrometheus;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use AnatolyDuzenko\ConfigurablePrometheus\Http\Middleware\AuthenticatePrometheus;
 use Tests\BaseTestCase;
 
 /**
@@ -18,6 +18,7 @@ class AuthenticatePrometheusTest extends BaseTestCase
     {
         parent::setUp();
     }
+
     protected function createRequestWithAuth($user = null, $pass = null): Request
     {
         $server = [];
@@ -34,7 +35,7 @@ class AuthenticatePrometheusTest extends BaseTestCase
      */
     public function test_denies_request_without_credentials()
     {
-        $middleware = new AuthenticatePrometheus();
+        $middleware = new AuthenticatePrometheus;
         $request = $this->createRequestWithAuth();
 
         $response = $middleware->handle($request, fn () => new Response('OK'));
@@ -48,7 +49,7 @@ class AuthenticatePrometheusTest extends BaseTestCase
      */
     public function test_allows_request_with_valid_credentials()
     {
-        $middleware = new AuthenticatePrometheus();
+        $middleware = new AuthenticatePrometheus;
         $request = $this->createRequestWithAuth('admin', 'secret');
 
         $response = $middleware->handle($request, fn () => new Response('OK'));
@@ -62,7 +63,7 @@ class AuthenticatePrometheusTest extends BaseTestCase
      */
     public function test_denies_request_with_wrong_credentials()
     {
-        $middleware = new AuthenticatePrometheus();
+        $middleware = new AuthenticatePrometheus;
         $request = $this->createRequestWithAuth('wrong', 'bad');
 
         $response = $middleware->handle($request, fn () => new Response('OK'));
