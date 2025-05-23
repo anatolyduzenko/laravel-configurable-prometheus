@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace AnatolyDuzenko\ConfigurablePrometheus\Contracts;
 
@@ -8,8 +8,8 @@ use AnatolyDuzenko\ConfigurablePrometheus\DTO\MetricDefinition;
  * Interface MetricGroup
  *
  * Represents a group of related Prometheus metrics.
- * 
- * @return MetricDefinition[] 
+ *
+ * @return MetricDefinition[]
  */
 interface MetricGroup
 {

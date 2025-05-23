@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace AnatolyDuzenko\ConfigurablePrometheus\Http\Middleware;
 
@@ -16,10 +16,6 @@ class AuthenticatePrometheus
 {
     /**
      * Handle an incoming request and check for basic authentication.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure $next
-     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -27,8 +23,8 @@ class AuthenticatePrometheus
         $password = config('prometheus.auth.password');
 
         if (
-            !$request->getUser() ||
-            !$request->getPassword() ||
+            ! $request->getUser() ||
+            ! $request->getPassword() ||
             $request->getUser() !== $user ||
             $request->getPassword() !== $password
         ) {

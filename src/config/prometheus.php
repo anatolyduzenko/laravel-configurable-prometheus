@@ -35,7 +35,6 @@ return [
     'groups' => [
         \AnatolyDuzenko\ConfigurablePrometheus\Metrics\Groups\UserMetrics::class,
     ],
-    
 
     /*
     |--------------------------------------------------------------------------
@@ -60,4 +59,13 @@ return [
     */
     'endpoint' => 'prometheus',
 
+    /*
+    |--------------------------------------------------------------------------
+    | Metrics Enabled flag
+    |--------------------------------------------------------------------------
+    |
+    | Enable / Disable metrics.
+    |
+    */
+    'enabled' => env('PROMETHEUS_ENABLED', true),
 ];
